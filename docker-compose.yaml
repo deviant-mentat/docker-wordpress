@@ -1,0 +1,48 @@
+version: '3.3'
+
+services:
+  db:
+    build: ./database/
+    hostname: database
+    container_name: database
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - back
+    expose:
+      - "3306"
+    restart: always
+
+  webserver:
+    build: ./webserver/
+    hostname: webserver
+    container_name: webserver
+    depends_on:
+      - db
+    volumes:
+      - webroot:/www:rw
+    networks:
+      - back
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+
+  wordpress:
+    build: ./wordpress/
+    hostname: wordpress
+    container_name: wordpress
+    depends_on:
+      - db
+      - webserver
+    volumes:
+      - webroot:/usr/share/webapps:rw
+    networks:
+      - back
+
+volumes:
+  db_data: {}
+  webroot: {}
+
+networks:
+  back:
